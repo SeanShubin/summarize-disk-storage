@@ -27,21 +27,23 @@ object PrototypeApp {
 
     private fun summarizeDiskStoragePaths(paths: List<Path>) {
         paths
-            .map(::loadSummary)
+            .mapNotNull(::loadSummary)
             .sortedDescending()
             .map(::formatSummary)
             .forEach(::println)
     }
 
-    private fun loadSummary(path: Path): Summary =
+    private fun loadSummary(path: Path): Summary? =
         if (Files.isDirectory(path)) {
             loadSummaryFromDir(path)
-        } else {
+        } else if(Files.isRegularFile(path)){
             loadSummaryFromFile(path)
+        } else {
+            null
         }
 
     private fun loadSummaryFromDir(dir: Path): Summary {
-        val summaries = listFiles(dir).map(::loadSummary)
+        val summaries = listFiles(dir).mapNotNull(::loadSummary)
         return Summary.combineDir(dir, summaries)
     }
 
@@ -82,7 +84,7 @@ object PrototypeApp {
         override fun compareTo(other: Summary): Int = size.compareTo(other.size)
 
         companion object {
-            fun combineDir(path: Path, summaries: List<Summary>): Summary {
+            fun combineDir(dir: Path, summaries: List<Summary>): Summary {
                 var newFileQuantity = 0
                 var newDirQuantity = 1
                 var newSize = 0L
@@ -91,7 +93,7 @@ object PrototypeApp {
                     newDirQuantity += summary.dirs
                     newSize += summary.size
                 }
-                return Summary(path, newSize, newFileQuantity, newDirQuantity)
+                return Summary(dir, newSize, newFileQuantity, newDirQuantity)
             }
         }
     }
