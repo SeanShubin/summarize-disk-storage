@@ -14,7 +14,13 @@ class Runner(
         val path = Paths.get(pathName)
         val (duration, summaryLines) = timer.measure {
             val summaries = scanner.scan(path)
-            val summaryLines = summaries.map { formatter.composeSummary(it) }
+            val summaryLines = summaries.sortedBy {
+                it.path.toString()
+            }.sortedByDescending {
+                it.size
+            }.map {
+                formatter.composeSummary(it)
+            }
             summaryLines
         }
         val durationLine = formatter.composeDuration(duration)

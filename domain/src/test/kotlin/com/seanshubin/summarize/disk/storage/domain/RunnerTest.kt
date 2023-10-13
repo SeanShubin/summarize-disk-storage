@@ -83,6 +83,47 @@ class RunnerTest {
         assertEquals(expected, actual)
     }
 
+    @Test
+    fun sortSummaries() {
+        // given
+        val args = arrayOf("base")
+        val duration = Duration.ofSeconds(45296)
+        val timer = TimerStub(duration)
+        val summary1 = Summary(Paths.get("file-c"), size = 1000, files = 1, dirs = 0)
+        val summary2 = Summary(Paths.get("file-b"), size = 1500, files = 1, dirs = 0)
+        val summary3 = Summary(Paths.get("file-a"), size = 1000, files = 1, dirs = 0)
+        val summary4 = Summary(Paths.get("file-d"), size = 1500, files = 1, dirs = 0)
+        val summaryList = listOf(summary1, summary2, summary3, summary4)
+        val summaryListMap = mapOf("base" to summaryList)
+        val scanner = ScannerStub(summaryListMap)
+        val summaryFormatMap = mapOf(
+            summary1 to "summary-1",
+            summary2 to "summary-2",
+            summary3 to "summary-3",
+            summary4 to "summary-4"
+        )
+        val durationFormatMap = mapOf(
+            duration to "duration-string"
+        )
+        val formatter = FormatterStub(summaryFormatMap, durationFormatMap)
+        val emitLine = EmitLineStub()
+        val runner = Runner(args, timer, scanner, formatter, emitLine)
+        val expected = listOf(
+            "summary-2",
+            "summary-4",
+            "summary-3",
+            "summary-1",
+            "duration-string"
+        )
+
+        // when
+        runner.run()
+
+        // then
+        val actual = emitLine.linesEmitted()
+        assertEquals(expected, actual)
+    }
+
     class TimerStub(private val duration: Duration) : Timer {
         override fun <T> measure(f: () -> T): Pair<Duration, T> {
             return Pair(duration, f())
