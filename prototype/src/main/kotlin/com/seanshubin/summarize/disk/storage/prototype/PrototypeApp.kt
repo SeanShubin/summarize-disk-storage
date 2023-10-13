@@ -17,17 +17,16 @@ object PrototypeApp {
     }
 
     private fun summarizeDiskStorage(path: Path) {
-        val paths = if (Files.isDirectory(path)) {
-            listFiles(path)
+        val allSummaries = if (Files.isDirectory(path)) {
+            val children = listFiles(path)
+            val summaries = children.mapNotNull(::loadSummary)
+            val topSummary = Summary.combineDir(path, summaries)
+            listOf(topSummary) + summaries
         } else {
-            listOf(path)
+            val summary = loadSummary(path)!!
+            listOf(summary)
         }
-        summarizeDiskStoragePaths(paths)
-    }
-
-    private fun summarizeDiskStoragePaths(paths: List<Path>) {
-        paths
-            .mapNotNull(::loadSummary)
+        allSummaries
             .sortedDescending()
             .map(::formatSummary)
             .forEach(::println)

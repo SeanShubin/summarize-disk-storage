@@ -46,7 +46,7 @@
   }
   detangler [domain]
   consoleEntryPoint {
-    console   com.seanshubin.summarize.disk.storage.console.EntryPoint
+    console   com.seanshubin.summarize.disk.storage.console.SummarizeDiskStorageApp
     prototype com.seanshubin.summarize.disk.storage.prototype.PrototypeApp
   }
   javaVersion 18
